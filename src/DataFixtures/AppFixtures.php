@@ -28,6 +28,8 @@ class AppFixtures extends Fixture
             $passHash = $this->encoder->encodePassword($user, 'password');
 
             $user->setEmail($faker->email)
+                ->setStatus(mt_rand(0, 1))
+                ->setAge(mt_rand(15, 80))
                 ->setPassword($passHash);
 
             $manager->persist($user);

@@ -2,14 +2,25 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
+use App\Repository\UserRepository;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Security\Core\User\UserInterface;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
+
+
+
 
 
 
@@ -32,6 +43,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "delete"
  *      }
  * )
+ *  @ApiFilter(SearchFilter::class, properties={"email": "partial"})
+ *  @ApiFilter(DateFilter::class, properties={"createdAt"})
+ *  @ApiFilter(BooleanFilter::class, properties={"status"})
+ *  @ApiFilter(RangeFilter::class, properties={"age"})
+ *  @ApiFilter(ExistsFilter::class, properties={"updatedAt"})
+ *  @ApiFilter(OrderFilter::class, properties={"age"}, arguments={"orderParameterName"="order"})
+
+ * 
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
  */
@@ -62,6 +81,19 @@ class User implements UserInterface
      * @Groups({"user_details_read"})
      */
     private Collection $articles;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"user_read", "user_details_read", "article_details_read"})
+     */
+    private $status;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Groups({"user_read", "user_details_read", "article_details_read"})
+     * @ApiFilter(NumericFilter::class, properties={"age"})
+     */
+    private $age;
 
     public function __construct()
     {
@@ -168,6 +200,30 @@ class User implements UserInterface
                 $article->setAuthor(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(bool $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getAge(): ?int
+    {
+        return $this->age;
+    }
+
+    public function setAge(int $age): self
+    {
+        $this->age = $age;
 
         return $this;
     }
