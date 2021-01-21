@@ -35,7 +35,8 @@ class AppFixtures extends Fixture
             for ($a = 0; $a < mt_rand(5, 15); $a++) {
                 $article = new Article();
                 $article->setName($faker->text(50))
-                    ->setContent($faker->text(300));
+                    ->setContent($faker->text(300))
+                    ->setAuthor($user);
                 $manager->persist($article);
             }
             $manager->flush();

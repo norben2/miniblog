@@ -6,10 +6,26 @@ use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ArticleRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ * collectionOperations={
+ *          "get" ={
+ *              "normalization_context"={"groups"={"article_read"}}
+ *           },
+ *          "post"
+ *      },
+ *     itemOperations={
+ *          "get"={
+ *              "normalization_context"={"groups"={"article_details_read"}}
+ *           },
+ *          "put",
+ *          "patch",
+ *          "delete"
+ *      }
+ * )
  * @ORM\Entity(repositoryClass=ArticleRepository::class)
  */
 class Article
@@ -19,16 +35,19 @@ class Article
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"user_details_read","article_read","article_details_read"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"user_details_read","article_details_read", "article_read"})
      */
     private $content;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="articles")
+     * @Groups({"article_details_read"})
      */
     private $author;
 
